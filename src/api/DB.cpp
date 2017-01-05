@@ -470,11 +470,13 @@ void DB::remove(unsigned int id)
 	if (id > record_count || id <= 0)
 		return;
 	
-	/* Open a stream with the database file
+	/* Open a stream with the database file and the temporary file
 	*
 	*/
 	std::string db_filename = db_name + DB_EXT;
-	std::fstream db_file(db_filename.c_str(), std::ios::in | std::ios::out | std::ios::binary);
+	std::string db_filename_temp = db_name + DB_EXT + TEMP_EXT;
+	std::fstream db_file(db_filename.c_str(), std::ios::in | std::ios::binary);
+	std::fstream db_file_temp(db_filename_temp.c_str(), std::ios::out | std::ios::binary);
 
 	/* Ensure we are at the beginning of the file to avoid any data corruption
 	*
@@ -502,12 +504,25 @@ void DB::remove(unsigned int id)
 	int record_size;
 	db_file.read((char*)&record_count, sizeof(unsigned int));
 	db_file.read((char*)&record_size, sizeof(int));
-	
-	/* Read all existing records into a vector
+
+	/* Update the record count
+	* Write the table and record info to the temporary file
 	*
 	*/
-	std::vector<Record> records;
-	for (unsigned int i = 1; i <= record_count; i++)
+	record_count -= 1;
+	this -> record_count = record_count;
+	table.write(db_file_temp);
+	db_file_temp.write(reinterpret_cast<const char*>(&record_count), sizeof(unsigned int));
+	db_file_temp.write(reinterpret_cast<const char*>(&record_size), sizeof(int));	
+	
+	/* Read existing records and rewrite to the temporary database
+	* Do not rewrite the record we want to remove
+	* Update the id of records after the removed record
+	*
+	*/
+	unsigned int new_id = 1;
+	bool shift_point = false;
+	for (unsigned int i = 1; i <= record_count + 1; i++)
 	{
 		/* Read in the record
 		*
@@ -515,40 +530,37 @@ void DB::remove(unsigned int id)
 		Record temp_record;
 		temp_record.set_table(table);
 		temp_record.read(db_file);
-		
-		records.push_back(temp_record);
-	}
 
-	/* Update the indexes after the element to delete
-	* then remove the desired record from the vector
-	* Finally, update the database record count
-	*
-	*/
-	int vector_index = id - 1;
-	for (int i = vector_index + 1; i < records.size(); i++)
-	{
-		unsigned int existing_id = records[i].get_id();
-		records[i].set_id(existing_id - 1);
+		/* Check the id against the record to remove
+		* If the new id does not match, set the record id (which may be the same or shifted over), write the record, and increment the new id
+		* If the id does match, don't write the record and set the shift point flag
+		* If we're at the shift point, the id will match the id but we want to write out the record this time
+		*
+		*/
+		if (! (new_id == id))
+		{
+			temp_record.set_id(new_id);
+			temp_record.write(db_file_temp);
+			new_id++;
+		}
+		else if (shift_point == true)
+		{
+			temp_record.set_id(new_id);
+			temp_record.write(db_file_temp);
+			new_id++;
+			shift_point = false;
+		}
+		else
+		{
+			shift_point = true;	
+		}
 	}
-
-	records.erase(records.begin() + vector_index);
-	record_count -= 1;
-	this -> record_count = record_count;
 
 	db_file.close();
+	db_file_temp.close();
 
-	/* Now reopen a stream with the database file and overwrite with the updated record set
+	/* Finally, rename the temporary file to replace the main database file
 	*
 	*/
-	db_file.open(db_filename.c_str(), std::ios::out | std::ios::trunc | std::ios::binary);
-
-	table.write(db_file);
-	db_file.write(reinterpret_cast<const char*>(&record_count), sizeof(unsigned int));
-	db_file.write(reinterpret_cast<const char*>(&record_size), sizeof(int));
-	for (int i = 0; i < records.size(); i++)
-	{
-		records[i].write(db_file);
-	}
-	
-	db_file.close();
+	std::rename(db_filename_temp.c_str(), db_filename.c_str());
 }

@@ -15,10 +15,11 @@
 #include <map>
 #include <vector>
 
-/* Define constants internal to the database API
+/* Define constants for the database API
 *
 */
 const std::string DB_EXT = ".pb";
+const std::string TEMP_EXT = ".tmp";
 
 /* This class defines the public DB API
 * Its member functions provide end user functionality such as
