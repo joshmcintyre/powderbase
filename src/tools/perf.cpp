@@ -9,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <chrono>
+#include <cstdlib>
 
 /* This function is the main entry point for the program
 *

@@ -33,10 +33,11 @@ class DB
 	*/
 	private:
 		
-		/* This constant defines an ATTR_ID type
+		/* Define important constants for manipulating the database
 		*
 		*/
 		static const int ATTR_ID = -1;
+		static const int REMOVED_THRESHOLD_DENOM = 2;
 
 		/* This class stores information about attributes in a flat table
 		*
@@ -279,6 +280,7 @@ class DB
 		bool is_loaded;
 		Table table;
 		unsigned int record_count;
+		unsigned int removed_count;
 		std::string db_name;
 };
 

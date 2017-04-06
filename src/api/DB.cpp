@@ -43,6 +43,7 @@ void DB::create(std::string db_name, DB::Table table)
 	*
 	*/
 	record_count = 0;
+	removed_count = 0;
 	db_file.write(reinterpret_cast<const char*>(&record_count), sizeof(unsigned int));
 		
 	db_file.close();
@@ -81,9 +82,11 @@ void DB::load(std::string db_name)
 	table.read(db_file);
 	
 	/* Load the database record count
+	* Reset the removed count
 	*
 	*/
 	db_file.read((char*)&record_count, sizeof(unsigned int));
+	removed_count = 0;
 	
 	db_file.close();
 	
@@ -475,7 +478,7 @@ void DB::remove(unsigned int id)
 	*/
 	std::string db_filename = db_name + DB_EXT;
 	std::string db_filename_temp = db_name + DB_EXT + TEMP_EXT;
-	std::fstream db_file(db_filename.c_str(), std::ios::in | std::ios::binary);
+	std::fstream db_file(db_filename.c_str(), std::ios::in | std::ios::out | std::ios::binary);
 	std::fstream db_file_temp(db_filename_temp.c_str(), std::ios::out | std::ios::binary);
 
 	/* Ensure we are at the beginning of the file to avoid any data corruption
@@ -505,24 +508,50 @@ void DB::remove(unsigned int id)
 	db_file.read((char*)&record_count, sizeof(unsigned int));
 	db_file.read((char*)&record_size, sizeof(int));
 
-	/* Update the record count
-	* Write the table and record info to the temporary file
+	/* Calculate an offset to the record so it can be marked as removed
 	*
 	*/
-	record_count -= 1;
-	this -> record_count = record_count;
-	table.write(db_file_temp);
-	db_file_temp.write(reinterpret_cast<const char*>(&record_count), sizeof(unsigned int));
-	db_file_temp.write(reinterpret_cast<const char*>(&record_size), sizeof(int));	
+	Record temp_record;
+	temp_record.set_table(table);
+	int record_offset = table_offset + sizeof(unsigned int) + sizeof(int) + (record_size * (id - 1));
+	db_file.seekp(record_offset);
+
+	/* Retrieve the record, mark the record as removed, and rewrite it
+	*
+	*/
+	temp_record.read(db_file);
+
+	temp_record.set_id(0);
+	db_file.seekp(record_offset);
+	temp_record.write(db_file);
+
+	removed_count++;
+
+	/* Check to see if the removed count has reached the threshold for rewriting records
+	*
+	*/
+	if (( (double) removed_count / (double) record_count) < (1 / (double) REMOVED_THRESHOLD_DENOM))
+	{
+		db_file.close();
+		db_file_temp.close();
+		return;
+	}
 	
 	/* Read existing records and rewrite to the temporary database
-	* Do not rewrite the record we want to remove
-	* Update the id of records after the removed record
+	* Do not rewrite records marked as deleted
+	* Update the ids of records along the way to ensure there are no gaps
+	* Start by writing the table data to the temporary file and a temporary record count and record size as a placeholder
+	* After the new record count has been determined it will be rewritten
 	*
 	*/
-	unsigned int new_id = 1;
-	bool shift_point = false;
-	for (unsigned int i = 1; i <= record_count + 1; i++)
+	table.write(db_file_temp);
+	db_file_temp.write(reinterpret_cast<const char*>(&record_count), sizeof(unsigned int));
+	db_file_temp.write(reinterpret_cast<const char*>(&record_size), sizeof(int));
+
+	record_offset = table_offset + sizeof(unsigned int) + sizeof(int);
+	db_file.seekp(record_offset);
+	int shift = 0;
+	for (unsigned int i = 1; i < record_count + 1; i++)
 	{
 		/* Read in the record
 		*
@@ -530,31 +559,31 @@ void DB::remove(unsigned int id)
 		Record temp_record;
 		temp_record.set_table(table);
 		temp_record.read(db_file);
+		unsigned int cur_id = temp_record.get_id();
 
-		/* Check the id against the record to remove
-		* If the new id does not match, set the record id (which may be the same or shifted over), write the record, and increment the new id
-		* If the id does match, don't write the record and set the shift point flag
-		* If we're at the shift point, the id will match the id but we want to write out the record this time
-		*
+		/* If the record is marked as removed, don't rewrite it
+		* Decrease the shift counter so subsequent records ids can be shifted
 		*/
-		if (! (new_id == id))
+		if (cur_id == 0)
 		{
-			temp_record.set_id(new_id);
-			temp_record.write(db_file_temp);
-			new_id++;
-		}
-		else if (shift_point == true)
-		{
-			temp_record.set_id(new_id);
-			temp_record.write(db_file_temp);
-			new_id++;
-			shift_point = false;
+			shift--;
 		}
 		else
 		{
-			shift_point = true;	
+			temp_record.set_id(cur_id + shift);
+			temp_record.write(db_file_temp);
 		}
 	}
+
+	/* Update the record count
+	* Write the table and record info to the temporary file
+	*
+	*/
+	record_count += shift;
+	this -> record_count = record_count;
+
+	db_file_temp.seekp(table_offset);
+	db_file_temp.write(reinterpret_cast<const char*>(&record_count), sizeof(unsigned int));
 
 	db_file.close();
 	db_file_temp.close();
@@ -562,5 +591,6 @@ void DB::remove(unsigned int id)
 	/* Finally, rename the temporary file to replace the main database file
 	*
 	*/
+	std::remove(db_filename.c_str());
 	std::rename(db_filename_temp.c_str(), db_filename.c_str());
 }

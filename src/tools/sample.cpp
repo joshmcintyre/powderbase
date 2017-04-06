@@ -49,6 +49,24 @@ int main(int argc, char* argv[])
 	record2.add_float("Wilks", 235.72);
 	db.insert(record2);
 
+	DB::Record record3;
+	record3.set_table(table);
+	record3.add_char16("Name", "Jim Lifter");
+	record3.add_int("Squat", 315);
+	record3.add_int("Press", 135);
+	record3.add_int("Deadlift", 365);
+	record3.add_float("Wilks", 235.72);
+	db.insert(record3);
+
+	DB::Record record4;
+	record4.set_table(table);
+	record4.add_char16("Name", "Tim Lifter");
+	record4.add_int("Squat", 315);
+	record4.add_int("Press", 135);
+	record4.add_int("Deadlift", 365);
+	record4.add_float("Wilks", 235.72);
+	db.insert(record4);
+
 	/* Test record update
 	*
 	*/
@@ -76,7 +94,8 @@ int main(int argc, char* argv[])
 	*
 	*/
 	db.remove(2);
-	
+	db.remove(3);
+
 	/* Test record search after deletion
 	*
 	*/
