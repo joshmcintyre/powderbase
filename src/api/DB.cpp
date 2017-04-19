@@ -517,9 +517,13 @@ void DB::remove(unsigned int id)
 	db_file.seekp(record_offset);
 
 	/* Retrieve the record, mark the record as removed, and rewrite it
+	* If the record is already marked as removed, return
 	*
 	*/
 	temp_record.read(db_file);
+
+	if (temp_record.get_id() == 0)
+		return;
 
 	temp_record.set_id(0);
 	db_file.seekp(record_offset);
@@ -575,12 +579,13 @@ void DB::remove(unsigned int id)
 		}
 	}
 
-	/* Update the record count
+	/* Update the record count and removed count
 	* Write the table and record info to the temporary file
 	*
 	*/
 	record_count += shift;
 	this -> record_count = record_count;
+	removed_count = 0;
 
 	db_file_temp.seekp(table_offset);
 	db_file_temp.write(reinterpret_cast<const char*>(&record_count), sizeof(unsigned int));

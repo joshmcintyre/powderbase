@@ -124,9 +124,9 @@ int main(int argc, char* argv[])
 	*
 	*/
 	start = std::chrono::high_resolution_clock::now();
-	for (int i = 0; i < num_records; i++)
+	for (int i = num_records; i > 0; i--)
 	{
-		db.remove(1);
+		db.remove(i);
 	}
 	end = std::chrono::high_resolution_clock::now();
 	duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
