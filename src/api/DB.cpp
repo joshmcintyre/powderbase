@@ -82,19 +82,41 @@ void DB::load(std::string db_name)
 	table.read(db_file);
 	
 	/* Load the database record count
-	* Reset the removed count
 	*
 	*/
 	db_file.read((char*)&record_count, sizeof(unsigned int));
+	unsigned int record_size;
+	db_file.read((char*)&record_size, sizeof(unsigned int));
+
+	/* Read through the records to determine the removed count
+	*
+	*/
 	removed_count = 0;
-	
-	db_file.close();
-	
+	for (unsigned int i = 1; i <= record_count; i++)
+	{
+		/* Read in the record
+		*
+		*/
+		Record temp_record;
+		temp_record.set_table(table);
+		temp_record.read(db_file);
+
+		/* Check for a matching value
+		*
+		*/
+		if (temp_record.get_id() == 0)
+			removed_count++;
+	}
+
+	std::cout << "Removed " << removed_count << "\n";
+
 	/* Set this database as loaded so record operations can be performed and store important DB metadata
 	*
 	*/
 	this -> is_loaded = true;
 	this -> db_name = db_name;
+	
+	db_file.close();
 }
 
 /* This API function inserts a new record in the database
