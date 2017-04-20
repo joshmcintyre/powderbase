@@ -108,8 +108,6 @@ void DB::load(std::string db_name)
 			removed_count++;
 	}
 
-	std::cout << "Removed " << removed_count << "\n";
-
 	/* Set this database as loaded so record operations can be performed and store important DB metadata
 	*
 	*/
@@ -309,7 +307,7 @@ std::vector<DB::Record> DB::search_int(std::string name, int value)
 		/* Check for a matching value
 		*
 		*/
-		if (temp_record.get_int(temp_field.get_name()) == value)
+		if (temp_record.get_int(temp_field.get_name()) == value && temp_record.get_id() != 0)
 			records.push_back(temp_record);
 	}
 	
@@ -390,7 +388,7 @@ std::vector<DB::Record> DB::search_float(std::string name, float value)
 		/* Check for a matching value
 		*
 		*/
-		if (temp_record.get_float(temp_field.get_name()) == value)
+		if (temp_record.get_float(temp_field.get_name()) == value && temp_record.get_id() != 0)
 			records.push_back(temp_record);
 	}
 	
@@ -473,7 +471,7 @@ std::vector<DB::Record> DB::search_char16(std::string name, std::string value)
 		/* Check for a matching value
 		*
 		*/
-		if (temp_record.get_char16(temp_field.get_name()) == temp_value.get_data())
+		if (temp_record.get_char16(temp_field.get_name()) == value && temp_record.get_id() != 0)
 			records.push_back(temp_record);
 	}
 	
