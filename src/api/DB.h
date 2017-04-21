@@ -39,6 +39,104 @@ class DB
 		static const int ATTR_ID = -1;
 		static const int REMOVED_THRESHOLD_DENOM = 2;
 
+		/* This utility class defines a fixed-width string type
+		*
+		*/
+		template <int size>
+		class FixedString
+		{
+			private:
+				std::string fixed_string;
+
+			public:
+
+				/* This constructor initializes a fixed-width "empty" string
+				*
+				*/
+				FixedString()
+				{
+					set("");
+				}
+
+				/* This constructor initializes a fixed-width string after normalizing the base string
+				*
+				* Argument: base_string
+				*
+				*/
+				FixedString(std::string base_string)
+				{
+					set(base_string);
+				}
+
+				/* This function reads a fixed length string from disk
+				*
+				* Argument: stream
+				*
+				*/
+				void read(std::fstream& stream)
+				{
+					/* Read the string from disk
+					*
+					*/
+					std::string temp_name;
+					temp_name.resize(size);
+					stream.read(&temp_name[0], size);
+					set(temp_name);
+				}
+
+				/* This setter takes a base string and normalizes it to the desired length		
+				* It truncates string longer than the length specified in the template
+				* It pads strings shorter than that length
+				* This setter is called from several other FixedString functions to provide a more robust interface
+				*
+				* Argument: base_string
+				*
+				*/
+				void set(std::string base_string)
+				{
+					fixed_string = base_string.substr(0, size);
+
+					if (fixed_string.size() < size)
+					{
+						int pad = size - fixed_string.size();
+				                fixed_string.append(pad, ' ');
+					}
+
+					this -> fixed_string = fixed_string;
+				}
+
+				/* This getter returns an std::string version of the fixed-width string
+				*
+				* Return: fixed_string
+				*
+				*/
+				std::string get()
+				{
+					return fixed_string;
+				}
+
+				/* This getter returns the size of the fixed-width string in number of characters
+				*
+				* Return: size
+				*
+				*/
+				int get_size()
+				{
+					return size;
+				}
+		};
+
+	public:
+
+		/* Define commonly used fixed width string type definitions
+		*
+		*/
+		typedef FixedString<8> FixedString8;
+		typedef FixedString<16> FixedString16;
+
+
+	private:
+
 		/* This class stores information about attributes in a flat table
 		*
 		*/
@@ -49,16 +147,14 @@ class DB
 			*
 			*/
 			protected:
-				static const int NAME_SIZE = 8;
-				std::string name;
+				FixedString8 name;
 
 			/* This block defines functions for handling Attr information
 			*
 			*/
 			public:
-				void set_name(std::string name);
-				std::string get_name();
-				int get_name_size();
+				void set_name(FixedString8 name);
+				FixedString8 get_name();
 		};
 
 		/* This class stores information about record ID attributes in a flat table
@@ -172,9 +268,8 @@ class DB
 			*
 			*/
 			private:
-				static const int NAME_SIZE = 8;
 				unsigned int size;
-				std::string name;
+				FixedString8 name;
 				int type;
 
 			/* This block defines functions for handling Table information
@@ -185,10 +280,10 @@ class DB
 				Field(unsigned int size);
 				void write(std::fstream& stream);
 				void read(std::fstream& stream);
-				void set_name(std::string name);
+				void set_name(FixedString8 name);
 				void set_type(int type);
 				unsigned int get_size();
-				std::string get_name();
+				FixedString8 get_name();
 				int get_type();
 		};
 
@@ -201,7 +296,7 @@ class DB
 		*
 		*/
 		enum ATTR_TYPES { ATTR_INT, ATTR_FLOAT, ATTR_CHAR16 };
-		
+	
 		/* This class stores table information
 		*
 		*/

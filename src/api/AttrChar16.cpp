@@ -25,7 +25,7 @@ void DB::AttrChar16::write(std::fstream& stream)
 	/* Write out the Attr properties
 	*
 	*/
-	stream.write(name.c_str(), NAME_SIZE);
+	stream.write(name.get().c_str(), name.get_size());
 	stream.write(data.c_str(), size);
 }
 

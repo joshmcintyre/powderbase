@@ -14,7 +14,7 @@ DB::Field::Field()
 	/* Set the default size for the field
 	*
 	*/
-	this -> size = NAME_SIZE + sizeof(int);
+	this -> size = name.get_size() + sizeof(int);
 }
 
 /* This constructor sets information such as the size of the Field
@@ -39,7 +39,7 @@ void DB::Field::write(std::fstream& stream)
 	/* Write out the field properties
 	*
 	*/
-	stream.write(name.c_str(), NAME_SIZE);
+	stream.write(name.get().c_str(), name.get_size());
 	stream.write(reinterpret_cast<const char*>(&type), sizeof(int));
 }
 
@@ -50,31 +50,20 @@ void DB::Field::write(std::fstream& stream)
 */
 void DB::Field::read(std::fstream& stream)
 {	
-	/* Write out the field properties
+	/* Read the field properties
 	*
 	*/
-	name.resize(NAME_SIZE);
-	stream.read(&name[0], NAME_SIZE);
+	name.read(stream);
 	stream.read((char*)&type, sizeof(int));
 }
 
 /* This setter sets the name
-* If the passed in name is longer than the name size limit, truncate it
-* If it is shorter than the name size limit, pad the string
 *
 * Argument: name
 *
 */
-void DB::Field::set_name(std::string name)
+void DB::Field::set_name(FixedString8 name)
 {
-	name = name.substr(0, NAME_SIZE);
-	
-	if (name.size() < NAME_SIZE)
-	{
-		int pad = NAME_SIZE - name.size();
-		name.append(pad, ' ');
-	}
-	
 	this -> name = name;
 }
 
@@ -111,7 +100,7 @@ unsigned int DB::Field::get_size()
 * Return: name
 *
 */
-std::string DB::Field::get_name()
+DB::FixedString8 DB::Field::get_name()
 {
 	return name;
 }

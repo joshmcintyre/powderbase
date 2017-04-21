@@ -45,21 +45,19 @@ void DB::Record::write(std::fstream& stream)
 void DB::Record::read(std::fstream& stream)
 {
 	std::map<std::string, Field> fields = table.get_fields();
-	const int NAME_SIZE = 8;
 	const int CHAR_16_SIZE = 16;
 
 	std::map<std::string, Field>::const_iterator it;
 	for (it = fields.begin(); it != fields.end(); it++)
 	{
-		std::string name;
-		name.resize(NAME_SIZE);
-		stream.read(&name[0], NAME_SIZE);
+		FixedString8 name;
+		name.read(stream);
 		
 		/* Determine how much to read based on the field type in the table,
 		* read the data, and add the attributes to the record
 		*
 		*/
-		int type = fields[name].get_type();
+		int type = fields[name.get()].get_type();
 
 		if (type == -1)
 		{
@@ -72,21 +70,21 @@ void DB::Record::read(std::fstream& stream)
 			AttrInt attr;
 			attr.read(stream);
 			attr.set_name(name);
-			attr_ints[attr.get_name()] = attr;
+			attr_ints[attr.get_name().get()] = attr;
 		}
 		else if (type == 1) //AttrFloat
 		{
 			AttrFloat attr;
 			attr.read(stream);
 			attr.set_name(name);
-			attr_floats[attr.get_name()] = attr;
+			attr_floats[attr.get_name().get()] = attr;
 		}
 		else if (type == 2) //AttrChar16
 		{
 			AttrChar16 attr;
 			attr.read(stream);
 			attr.set_name(name);
-			attr_char16s[attr.get_name()] = attr;
+			attr_char16s[attr.get_name().get()] = attr;
 		}
 	}
 }
@@ -125,9 +123,9 @@ void DB::Record::add_int(std::string name, int data)
 		return;
 
 	AttrInt attr;
-	attr.set_name(name);
+	attr.set_name(FixedString8(name));
 	attr.set_data(data);
-	attr_ints[attr.get_name()] = attr;
+	attr_ints[attr.get_name().get()] = attr;
 }
 
 /* This function adds a floating point Attr to a record
@@ -142,9 +140,9 @@ void DB::Record::add_float(std::string name, float data)
 		return;
 
 	AttrFloat attr;
-	attr.set_name(name);
+	attr.set_name(FixedString8(name));
 	attr.set_data(data);
-	attr_floats[attr.get_name()] = attr;
+	attr_floats[attr.get_name().get()] = attr;
 }
 
 /* This function adds a 16 character string Attr to a record
@@ -159,9 +157,9 @@ void DB::Record::add_char16(std::string name, std::string data)
 		return;
 
 	AttrChar16 attr;
-	attr.set_name(name);
+	attr.set_name(FixedString8(name));
 	attr.set_data(data);
-	attr_char16s[attr.get_name()] = attr;
+	attr_char16s[attr.get_name().get()] = attr;
 }
 
 /* This function returns the record id
@@ -184,9 +182,8 @@ int DB::Record::get_int(std::string name)
 	/* Standardize the AttrName before retrieval
 	*
 	*/
-	Attr standardize;
-	standardize.set_name(name);
-	name = standardize.get_name();
+	FixedString8 fixed_name(name);
+	name = fixed_name.get();
 
 	if (attr_ints.count(name) == 0)
 		return 0;
@@ -205,9 +202,8 @@ float DB::Record::get_float(std::string name)
 	/* Standardize the AttrName before retrieval
 	*
 	*/
-	Attr standardize;
-	standardize.set_name(name);
-	name = standardize.get_name();
+	FixedString8 fixed_name(name);
+	name = fixed_name.get();
 
 	if (attr_floats.count(name) == 0)
 		return 0.0;
@@ -226,9 +222,8 @@ std::string DB::Record::get_char16(std::string name)
 	/* Standardize the AttrName before retrieval
 	*
 	*/
-	Attr standardize;
-	standardize.set_name(name);
-	name = standardize.get_name();
+	FixedString8 fixed_name(name);
+	name = fixed_name.get();
 
 	if (attr_char16s.count(name) == 0)
 		return "";
@@ -247,14 +242,14 @@ int DB::Record::get_size()
 	int size = 0;
 
 	size += attr_id.get_size();
-	size += attr_id.get_name_size();
+	size += attr_id.get_name().get_size();
 
 	std::map<std::string, AttrInt>::const_iterator iti;
 	for (iti = attr_ints.begin(); iti != attr_ints.end(); iti++)
 	{
 		AttrInt attr_int = iti -> second;
 		size += attr_int.get_size();
-		size += attr_id.get_name_size();
+		size += attr_id.get_name().get_size();
 	}
 
 	std::map<std::string, AttrFloat>::const_iterator itf;
@@ -262,7 +257,7 @@ int DB::Record::get_size()
 	{
 		AttrFloat attr_float = itf -> second;
 		size += attr_float.get_size();
-		size += attr_id.get_name_size();
+		size += attr_id.get_name().get_size();
 	}
 
 	std::map<std::string, AttrChar16>::const_iterator itc;
@@ -270,7 +265,7 @@ int DB::Record::get_size()
 	{
 		AttrChar16 attr_char16 = itc -> second;
 		size += attr_char16.get_size();
-		size += attr_id.get_name_size();
+		size += attr_id.get_name().get_size();
 	}
 
 	return size;
@@ -292,32 +287,32 @@ void DB::Record::sanitize()
 
 		if (field.get_type() == ATTR_INT)
 		{
-			if (attr_ints.count(field.get_name()) == 0)
+			if (attr_ints.count(field.get_name().get()) == 0)
 			{
 				AttrInt attr_int;
-				attr_int.set_name(field.get_name());
+				attr_int.set_name(FixedString8(field.get_name().get()));
 				attr_int.set_data(0);
-				attr_ints[field.get_name()] = attr_int;
+				attr_ints[field.get_name().get()] = attr_int;
 			}
 		}
 		else if (field.get_type() == ATTR_FLOAT)
 		{
-			if (attr_floats.count(field.get_name()) == 0)
+			if (attr_floats.count(field.get_name().get()) == 0)
 			{
 				AttrFloat attr_float;
-				attr_float.set_name(field.get_name());
+				attr_float.set_name(FixedString8(field.get_name().get()));
 				attr_float.set_data(0.0);
-				attr_floats[field.get_name()] = attr_float;
+				attr_floats[field.get_name().get()] = attr_float;
 			}
 		}
 		else if (field.get_type() == ATTR_CHAR16)
 		{
-			if (attr_char16s.count(field.get_name()) == 0)
+			if (attr_char16s.count(field.get_name().get()) == 0)
 			{
 				AttrChar16 attr_char16;
-				attr_char16.set_name(field.get_name());
+				attr_char16.set_name(FixedString8(field.get_name().get()));
 				attr_char16.set_data("");
-				attr_char16s[field.get_name()] = attr_char16;
+				attr_char16s[field.get_name().get()] = attr_char16;
 			}
 		}
 	}

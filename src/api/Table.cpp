@@ -25,10 +25,10 @@ void DB::Table::write(std::fstream& stream)
 	*
 	*/
 	Field id;
-	id.set_name("id");
+	id.set_name(FixedString8("id"));
 	id.set_type(ATTR_ID);
 	
-	fields[id.get_name()] = id;
+	fields[id.get_name().get()] = id;
 	
 	/* Write out the size of each field and the number of table fields
 	*
@@ -69,7 +69,7 @@ void DB::Table::read(std::fstream& stream)
 	{
 		Field field(field_size);
 		field.read(stream);
-		fields[field.get_name()] = field;
+		fields[field.get_name().get()] = field;
 	}
 }
 
@@ -85,7 +85,7 @@ void DB::Table::add_field(std::string name, int type)
 	new_field.set_name(name);
 	new_field.set_type(type);
 	
-	fields[new_field.get_name()] = new_field;
+	fields[new_field.get_name().get()] = new_field;
 }
 
 /* This function returns a copy of the table fields
@@ -108,9 +108,8 @@ bool DB::Table::is_field(std::string name)
 	/* Normalize the field name before searching
 	*
 	*/
-	Field field;
-	field.set_name(name);
-	name = field.get_name();
+	FixedString8 fixed_name(name);
+	name = fixed_name.get();
 	
 	if (fields.count(name) > 0)
 	{

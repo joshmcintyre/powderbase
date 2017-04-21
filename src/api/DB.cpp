@@ -249,13 +249,11 @@ std::vector<DB::Record> DB::search_int(std::string name, int value)
 	std::vector<Record> records;
 	
 	/* If the provided field isn't in the list of int fields, don't search
-	* We first need to create a field object and normalize the field name for searching
 	*
 	*/
 	std::map<std::string, Field> fields = table.get_fields();
-	Field temp_field;
-	temp_field.set_name(name);
-	if (fields[temp_field.get_name()].get_type() != ATTR_INT)
+	FixedString8 fixed_name(name);
+	if (fields[fixed_name.get()].get_type() != ATTR_INT)
 		return records;
 
 	/* Open a stream with the database file
@@ -307,7 +305,7 @@ std::vector<DB::Record> DB::search_int(std::string name, int value)
 		/* Check for a matching value
 		*
 		*/
-		if (temp_record.get_int(temp_field.get_name()) == value && temp_record.get_id() != 0)
+		if (temp_record.get_int(fixed_name.get()) == value && temp_record.get_id() != 0)
 			records.push_back(temp_record);
 	}
 	
@@ -330,13 +328,11 @@ std::vector<DB::Record> DB::search_float(std::string name, float value)
 	std::vector<Record> records;
 	
 	/* If the provided field isn't in the list of float fields, don't search
-	* We first need to create a field object and normalize the field name for searching
 	*
 	*/
 	std::map<std::string, Field> fields = table.get_fields();
-	Field temp_field;
-	temp_field.set_name(name);
-	if (fields[temp_field.get_name()].get_type() != ATTR_FLOAT)
+	FixedString8 fixed_name(name);
+	if (fields[fixed_name.get()].get_type() != ATTR_FLOAT)
 		return records;
 
 	/* Open a stream with the database file
@@ -388,7 +384,7 @@ std::vector<DB::Record> DB::search_float(std::string name, float value)
 		/* Check for a matching value
 		*
 		*/
-		if (temp_record.get_float(temp_field.get_name()) == value && temp_record.get_id() != 0)
+		if (temp_record.get_float(fixed_name.get()) == value && temp_record.get_id() != 0)
 			records.push_back(temp_record);
 	}
 	
@@ -411,13 +407,11 @@ std::vector<DB::Record> DB::search_char16(std::string name, std::string value)
 	std::vector<Record> records;
 	
 	/* If the provided field isn't in the list of char16 fields, don't search
-	* We first need to create a field object and normalize the field name for searching
 	*
 	*/
 	std::map<std::string, Field> fields = table.get_fields();
-	Field temp_field;
-	temp_field.set_name(name);
-	if (fields[temp_field.get_name()].get_type() != ATTR_CHAR16)
+	FixedString8 fixed_name(name);
+	if (fields[fixed_name.get()].get_type() != ATTR_CHAR16)
 		return records;
 
 	/* Open a stream with the database file
@@ -471,7 +465,7 @@ std::vector<DB::Record> DB::search_char16(std::string name, std::string value)
 		/* Check for a matching value
 		*
 		*/
-		if (temp_record.get_char16(temp_field.get_name()) == value && temp_record.get_id() != 0)
+		if (temp_record.get_char16(fixed_name.get()) == value && temp_record.get_id() != 0)
 			records.push_back(temp_record);
 	}
 	
