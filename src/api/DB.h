@@ -238,12 +238,11 @@ class DB
 		*/
 		class AttrChar16: public Attr
 		{
-			/* This block defines variables for storing integer Attr information
+			/* This block defines variables for storing 16 character string Attr information
 			*
 			*/
 			private:
-				static const int CHAR_16_SIZE = 16;
-				std::string data;
+				FixedString16 data;
 				unsigned int size;
 
 			/* This block defines functions for handling floating point Attr information
