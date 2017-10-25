@@ -1,7 +1,6 @@
 /* This file contains code that reads and prints the contents of a PowderBase .pb file
 *
 * Author: Josh McIntyre
-*
 */
 
 #include <iostream>
@@ -11,17 +10,10 @@
 
 /* This function is the main entry point for the program
 * It takes the name of the file as a command line argument
-*
-* Argument: argc
-* Argument: argv
-* Return: 0 (exit status)
-*
 */
 int main(int argc, char* argv[])
 {
-	/* Define constants and variables for printing file information
-	*
-	*/
+	// Define constants and variables for printing file information
 	const int NAME_SIZE = 8;
 	const int CHAR_16_SIZE = 16;
 	std::map<int, int> type_sizes; 
@@ -31,9 +23,7 @@ int main(int argc, char* argv[])
 	type_sizes[2] = sizeof(char) * CHAR_16_SIZE; //AttrChar16
 	std::map<std::string, int> name_types;
 
-	/* Get command line arguments
-	*
-	*/
+	// Get command line arguments
 	std::string file_name;
 	bool verbose = false;
 
@@ -57,9 +47,7 @@ int main(int argc, char* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	/* Print any database metadata in verbose mode
-	*
-	*/
+	// Print any database metadata in verbose mode
 	if (verbose)
 	{
 		std::fstream db_file(file_name.c_str(), std::fstream::in | std::ios::ate | std::ios::binary);
@@ -67,15 +55,10 @@ int main(int argc, char* argv[])
 		db_file.close();
 	}
 
-	/* Open a stream with the database file
-	*
-	*/
+	// Open a stream with the database file
 	std::fstream db_file(file_name.c_str(), std::fstream::in | std::ios::binary);
 	
-	/* Read and print the table information
-	*
-	*/
-
+	// Read and print the table information
 	if (verbose)
 		std::cout << "Table\n";
 
@@ -108,14 +91,10 @@ int main(int argc, char* argv[])
 		std::cout << type << "\n";
 
 
-		/* Store table information for retrieving records
-		*
-		*/
+		// Store table information for retrieving records
 		name_types[name] = type;
 
 		/* In later versions, we will want to check for other table items
-		*
-		*
 		if (field_size > 2)
 		{
 
@@ -123,9 +102,7 @@ int main(int argc, char* argv[])
 		*/
 	}
 
-	/* Read and print record information
-	*
-	*/
+	// Read and print record information
 	if (verbose)
 		std::cout << "Records\n";
 
@@ -153,9 +130,7 @@ int main(int argc, char* argv[])
 			db_file.read(&name[0], NAME_SIZE);
 			std::cout << name << "\n";
 
-			/* Determine how much to read based on the field type in the table
-			*
-			*/
+			// Determine how much to read based on the field type in the table
 			int type = name_types[name];
 
 			if (type == -1)

@@ -2,7 +2,6 @@
 * This file contains the main entry point for the program
 *
 * Author: Josh McIntyre
-*
 */
 
 #include <DB.h>
@@ -11,18 +10,10 @@
 #include <chrono>
 #include <cstdlib>
 
-/* This function is the main entry point for the program
-*
-* Argument: argc
-* Argument: argv
-* Return: 0 (exit status)
-*
-*/
+// This function is the main entry point for the program
 int main(int argc, char* argv[])
 {
-	/* Get command line arguments
-	*
-	*/
+	// Get command line arguments
 	int num_records = 0;
 	bool verbose = false;
 
@@ -49,15 +40,12 @@ int main(int argc, char* argv[])
 	
 	/* Create a database object
 	* Create counter variables
-	*
 	*/
 	DB db;
 	std::chrono::high_resolution_clock::time_point start;
 	std::chrono::high_resolution_clock::time_point end;
 	
-	/* Test table creation and database creation
-	*
-	*/
+	// Test table creation and database creation
 	start = std::chrono::high_resolution_clock::now();
 	DB::Table table;
 	table.add_field("Name", DB::ATTR_CHAR16);
@@ -71,9 +59,7 @@ int main(int argc, char* argv[])
 	
 	std::cout << "Create: " << duration << " ms\n";
 	
-	/* Test record creation
-	*
-	*/
+	// Test record creation
 	start = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < num_records; i++)
 	{
@@ -89,9 +75,7 @@ int main(int argc, char* argv[])
 	
 	std::cout << "Insert: " << duration << " ms\n";
 	
-	/* Test record update
-	*
-	*/
+	// Test record update
 	start = std::chrono::high_resolution_clock::now();
 	for (int i = 0; i < num_records; i++)
 	{
@@ -110,9 +94,7 @@ int main(int argc, char* argv[])
 	
 	std::cout << "Update: " << duration << " ms\n";
 	
-	/* Test record search
-	*
-	*/
+	// Test record search
 	start = std::chrono::high_resolution_clock::now();
 	std::vector<DB::Record> records = db.search_int("Squat", 245);
 	end = std::chrono::high_resolution_clock::now();
@@ -120,9 +102,7 @@ int main(int argc, char* argv[])
 	
 	std::cout << "Search: " << duration << " ms\n";
 
-	/* Test record removal
-	*
-	*/
+	// Test record removal
 	start = std::chrono::high_resolution_clock::now();
 	for (int i = num_records; i > 0; i--)
 	{

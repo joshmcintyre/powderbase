@@ -1,7 +1,6 @@
 /* This file contains class definitions for the PowderBase DB API class and associated classes
 *
 * Author: Josh McIntyre
-*
 */
 
 #ifndef DB_H
@@ -24,24 +23,17 @@ const std::string TEMP_EXT = ".tmp";
 /* This class defines the public DB API
 * Its member functions provide end user functionality such as
 * database creation and record insertion
-*
 */
 class DB
 {
-	/* This block defines private DB classes and variables
-	*
-	*/
+	// This block defines private DB classes and variables
 	private:
 		
-		/* Define important constants for manipulating the database
-		*
-		*/
+		// Define important constants for manipulating the database
 		static const int ATTR_ID = -1;
 		static const int REMOVED_THRESHOLD_DENOM = 2;
 
-		/* This utility class defines a fixed-width string type
-		*
-		*/
+		// This utility class defines a fixed-width string type
 		template <int size>
 		class FixedString
 		{
@@ -50,34 +42,22 @@ class DB
 
 			public:
 
-				/* This constructor initializes a fixed-width "empty" string
-				*
-				*/
+				// This constructor initializes a fixed-width "empty" string
 				FixedString()
 				{
 					set("");
 				}
 
-				/* This constructor initializes a fixed-width string after normalizing the base string
-				*
-				* Argument: base_string
-				*
-				*/
+				// This constructor initializes a fixed-width string after normalizing the base string
 				FixedString(std::string base_string)
 				{
 					set(base_string);
 				}
 
-				/* This function reads a fixed length string from disk
-				*
-				* Argument: stream
-				*
-				*/
+				// This function reads a fixed length string from disk
 				void read(std::fstream& stream)
 				{
-					/* Read the string from disk
-					*
-					*/
+					// Read the string from disk
 					std::string temp_name;
 					temp_name.resize(size);
 					stream.read(&temp_name[0], size);
@@ -88,9 +68,6 @@ class DB
 				* It truncates string longer than the length specified in the template
 				* It pads strings shorter than that length
 				* This setter is called from several other FixedString functions to provide a more robust interface
-				*
-				* Argument: base_string
-				*
 				*/
 				void set(std::string base_string)
 				{
@@ -105,21 +82,13 @@ class DB
 					this -> fixed_string = fixed_string;
 				}
 
-				/* This getter returns an std::string version of the fixed-width string
-				*
-				* Return: fixed_string
-				*
-				*/
+				// This getter returns an std::string version of the fixed-width string
 				std::string get()
 				{
 					return fixed_string;
 				}
 
-				/* This getter returns the size of the fixed-width string in number of characters
-				*
-				* Return: size
-				*
-				*/
+				// This getter returns the size of the fixed-width string in number of characters
 				int get_size()
 				{
 					return size;
@@ -128,50 +97,36 @@ class DB
 
 	public:
 
-		/* Define commonly used fixed width string type definitions
-		*
-		*/
+		// Define commonly used fixed width string type definitions
 		typedef FixedString<8> FixedString8;
 		typedef FixedString<16> FixedString16;
 
 
 	private:
 
-		/* This class stores information about attributes in a flat table
-		*
-		*/
+		// This class stores information about attributes in a flat table
 		class Attr
 		{
 
-			/* This block defines variables and constants for storing Attr information
-			*
-			*/
+			// This block defines variables and constants for storing Attr information
 			protected:
 				FixedString8 name;
 
-			/* This block defines functions for handling Attr information
-			*
-			*/
+			// This block defines functions for handling Attr information
 			public:
 				void set_name(FixedString8 name);
 				FixedString8 get_name();
 		};
 
-		/* This class stores information about record ID attributes in a flat table
-		*
-		*/
+		// This class stores information about record ID attributes in a flat table
 		class AttrID : public Attr
 		{
-			/* This block defines variables for storing record ID Attr information
-			*
-			*/
+			// This block defines variables for storing record ID Attr information
 			private:
 				unsigned int data;
 				unsigned int size;
 
-			/* This block defines functions for handling ID Attr information
-			*
-			*/
+			// This block defines functions for handling ID Attr information
 			public:
 				AttrID();
 				void write(std::fstream& stream);
@@ -182,21 +137,15 @@ class DB
 
 		};
 
-		/* This class stores information about integer attributes in a flat table
-		*
-		*/
+		// This class stores information about integer attributes in a flat table
 		class AttrInt : public Attr
 		{
-			/* This block defines variables for storing integer Attr information
-			*
-			*/
+			// This block defines variables for storing integer Attr information
 			private:
 				int data;
 				unsigned int size;
 
-			/* This block defines functions for handling integer Attr information
-			*
-			*/
+			// This block defines functions for handling integer Attr information
 			public:
 				AttrInt();
 				void write(std::fstream& stream);
@@ -207,21 +156,15 @@ class DB
 
 		};
 
-		/* This class stores information about floating point attributes in a flat table
-		*
-		*/
+		// This class stores information about floating point attributes in a flat table
 		class AttrFloat : public Attr
 		{
-			/* This block defines variables for storing integer Attr information
-			*
-			*/
+			// This block defines variables for storing integer Attr information
 			private:
 				float data;
 				unsigned int size;
 
-			/* This block defines functions for handling floating point Attr information
-			*
-			*/
+			// This block defines functions for handling floating point Attr information
 			public:
 				AttrFloat();
 				void write(std::fstream& stream);
@@ -234,20 +177,15 @@ class DB
 
 		/* This class stores information about character attributes in a flat table
 		* This attribute stores a maximum of 16 characters
-		*
 		*/
 		class AttrChar16: public Attr
 		{
-			/* This block defines variables for storing 16 character string Attr information
-			*
-			*/
+			// This block defines variables for storing 16 character string Attr information
 			private:
 				FixedString16 data;
 				unsigned int size;
 
-			/* This block defines functions for handling floating point Attr information
-			*
-			*/
+			// This block defines functions for handling floating point Attr information
 			public:
 				AttrChar16();
 				void write(std::fstream& stream);
@@ -258,22 +196,16 @@ class DB
 
 		};
 
-		/* This class stores table field information
-		*
-		*/
+		// This class stores table field information
 		class Field
 		{
-			/* This block defines variables and constants for storing Table information
-			*
-			*/
+			// This block defines variables and constants for storing Table information
 			private:
 				unsigned int size;
 				FixedString8 name;
 				int type;
 
-			/* This block defines functions for handling Table information
-			*
-			*/
+			// This block defines functions for handling Table information
 			public:
 				Field();
 				Field(unsigned int size);
@@ -286,30 +218,20 @@ class DB
 				int get_type();
 		};
 
-	/* This block exposes public database API functions as well as public data types
-	*
-	*/
+	// This block exposes public database API functions as well as public data types
 	public:
 		
-		/* This enum declares the available Field datatypes in the database
-		*
-		*/
+		// This enum declares the available Field datatypes in the database
 		enum ATTR_TYPES { ATTR_INT, ATTR_FLOAT, ATTR_CHAR16 };
 	
-		/* This class stores table information
-		*
-		*/
+		// This class stores table information
 		class Table
 		{
-			/* This block defines variables for storing table information
-			*
-			*/
+			// This block defines variables for storing table information
 			private:
 				std::map<std::string, Field> fields;
 				
-			/* This block defines functions for setting table information
-			*
-			*/
+			// This block defines functions for setting table information
 			public:
 				void write(std::fstream& stream);
 				void read(std::fstream& stream);
@@ -318,16 +240,13 @@ class DB
 				bool is_field(std::string name);
 		};
 
-		/* This class stores a record built of dynamically specified Attrs
-		*
-		*/
+		// This class stores a record built of dynamically specified Attrs
 		class Record
 		{
 			/*This block defines variables for storing a record
 			* It stores maps of name, Attr pairs for each Attr data type
 			* It also stores a unique ID for the record
 			* It stores a copy of the database table to verify new data members
-			*
 			*/
 			private:
 				Table table;
@@ -336,9 +255,7 @@ class DB
 				std::map<std::string, AttrFloat> attr_floats;
 				std::map<std::string, AttrChar16> attr_char16s;
 		
-			/* This block defines functions for building and searching records
-			*
-			*/
+			// This block defines functions for building and searching records
 			public:
 				void write(std::fstream& stream);
 				void read(std::fstream& stream);
@@ -369,7 +286,6 @@ class DB
 
 		/* Initialize database metadata
 		* This information will be updated on database insert and load operations
-		*
 		*/
 		bool is_loaded;
 		Table table;

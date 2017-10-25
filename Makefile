@@ -2,11 +2,8 @@
 #
 # Author: Josh McIntyre
 #
-#
 
 # This block defines makefile variables
-#
-#
 INCLUDE_API=src/api
 API_FILES=src/api/*.cpp
 API_INCLUDE_FILES=src/api/*.h
@@ -32,8 +29,6 @@ LIB=ar
 LIB_FLAGS=rvs
 
 # This rule builds the library
-#
-#
 build: $(API_FILES)
 	mkdir -p $(BUILD_DIR)
 	$(CC) $(FLAGS) $(API_FILES)
@@ -42,8 +37,6 @@ build: $(API_FILES)
 	cp $(API_INCLUDE_FILES) $(BUILD_DIR)
 
 # This rule builds tools such as the sample driver, performance utility, and fileviewer utility
-#
-#
 tools: $(SAMPLE_FILE) $(PERF_FILE)
 	mkdir -p $(TOOLS_DIR)
 	$(CC) -o $(TOOLS_DIR)/$(SAMPLE_BIN) $(SAMPLE_FILE) $(SAMPLE_FLAGS)
@@ -51,8 +44,6 @@ tools: $(SAMPLE_FILE) $(PERF_FILE)
 	$(CC) -o $(TOOLS_DIR)/$(FILEVIEWER_BIN) $(FILEVIEWER_FILE)
 	
 # This rule installs the library to the library directory
-#
-#
 install: $(API_FILES)
 	mkdir -p $(BUILD_DIR)
 	$(CC) $(FLAGS) $(API_FILES)
@@ -61,8 +52,6 @@ install: $(API_FILES)
 	cp $(BUILD_DIR)/*.h $(BUILD_DIR)/*.a $(INSTALL_DIR)
 
 # This rule cleans the build directory
-#
-#
 clean: $(BUILD_DIR)
 	rm $(BUILD_DIR)/* $(TOOLS_DIR)/*
 	rmdir $(BUILD_DIR) $(TOOLS_DIR)

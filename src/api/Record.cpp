@@ -1,16 +1,11 @@
 /* This file contains function definitions for the Record class
 *
 * Author: Josh McIntyre
-*
 */
 
 #include <DB.h>
 
-/* This function writes record information to disk using a stream object
-*
-* Argument: stream
-*
-*/
+// This function writes record information to disk using a stream object
 void DB::Record::write(std::fstream& stream)
 {	
 	attr_id.write(stream);
@@ -37,11 +32,7 @@ void DB::Record::write(std::fstream& stream)
 	}
 }
 
-/* This function reads in record information from disk using a stream object
-*
-* Argument: stream
-*
-*/
+// This function reads in record information from disk using a stream object
 void DB::Record::read(std::fstream& stream)
 {
 	std::map<std::string, Field> fields = table.get_fields();
@@ -55,7 +46,6 @@ void DB::Record::read(std::fstream& stream)
 		
 		/* Determine how much to read based on the field type in the table,
 		* read the data, and add the attributes to the record
-		*
 		*/
 		int type = fields[name.get()].get_type();
 
@@ -89,21 +79,13 @@ void DB::Record::read(std::fstream& stream)
 	}
 }
 
-/* This function stores a copy of the database table to verify additions to the record
-*
-* Argument: Table
-*
-*/
+// This function stores a copy of the database table to verify additions to the record
 void DB::Record::set_table(Table table)
 {
 	this -> table = table;
 }
 
-/* This function sets the record id
-*
-* Argument: id
-*
-*/
+// This function sets the record id
 void DB::Record::set_id(unsigned int id)
 {
 	AttrID attr_id;
@@ -111,12 +93,7 @@ void DB::Record::set_id(unsigned int id)
 	this -> attr_id = attr_id;
 }
 
-/* This function adds an integer Attr to a record
-*
-* Argument: name
-* Argument: data
-*
-*/
+// This function adds an integer Attr to a record
 void DB::Record::add_int(std::string name, int data)
 {
 	if (! table.is_field(name))
@@ -128,12 +105,7 @@ void DB::Record::add_int(std::string name, int data)
 	attr_ints[attr.get_name().get()] = attr;
 }
 
-/* This function adds a floating point Attr to a record
-*
-* Argument: name
-* Argument: data
-*
-*/
+// This function adds a floating point Attr to a record
 void DB::Record::add_float(std::string name, float data)
 {
 	if (! table.is_field(name))
@@ -145,12 +117,7 @@ void DB::Record::add_float(std::string name, float data)
 	attr_floats[attr.get_name().get()] = attr;
 }
 
-/* This function adds a 16 character string Attr to a record
-*
-* Argument: name
-* Argument: data
-*
-*/
+// This function adds a 16 character string Attr to a record
 void DB::Record::add_char16(std::string name, std::string data)
 {
 	if (! table.is_field(name))
@@ -162,21 +129,13 @@ void DB::Record::add_char16(std::string name, std::string data)
 	attr_char16s[attr.get_name().get()] = attr;
 }
 
-/* This function returns the record id
-*
-* Return: id
-*
-*/
+// This function returns the record id
 unsigned int DB::Record::get_id()
 {
 	return attr_id.get_data();
 }
 
-/* This function returns an integer attribute
-*
-* Argument: name
-*
-*/
+// This function returns an integer attribute
 int DB::Record::get_int(std::string name)
 {
 	/* Standardize the AttrName before retrieval
@@ -192,16 +151,10 @@ int DB::Record::get_int(std::string name)
 	return attr.get_data();
 }
 
-/* This function returns a floating point attribute
-*
-* Argument: name
-*
-*/
+// This function returns a floating point attribute
 float DB::Record::get_float(std::string name)
 {
-	/* Standardize the AttrName before retrieval
-	*
-	*/
+	// Standardize the AttrName before retrieval
 	FixedString8 fixed_name(name);
 	name = fixed_name.get();
 
@@ -212,16 +165,10 @@ float DB::Record::get_float(std::string name)
 	return attr.get_data();
 }
 
-/* This function returns a 16 character string attribute
-*
-* Argument: name
-*
-*/
+// This function returns a 16 character string attribute
 std::string DB::Record::get_char16(std::string name)
 {
-	/* Standardize the AttrName before retrieval
-	*
-	*/
+	// Standardize the AttrName before retrieval
 	FixedString8 fixed_name(name);
 	name = fixed_name.get();
 
@@ -232,11 +179,7 @@ std::string DB::Record::get_char16(std::string name)
 	return attr.get_data();
 }
 
-/* This function calculates the size of a whole record
-*
-* Return: size
-*
-*/
+// This function calculates the size of a whole record
 int DB::Record::get_size()
 {	
 	int size = 0;
@@ -274,7 +217,6 @@ int DB::Record::get_size()
 /* This function ensures that any table fields not added to the record are set with
 * sane defaults before write operations so that we don't end up with an incorrectly
 * sized record written to disk
-*
 */
 void DB::Record::sanitize()
 {

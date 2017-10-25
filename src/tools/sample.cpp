@@ -2,26 +2,17 @@
 * This file contains the main entry point for the program
 *
 * Author: Josh McIntyre
-*
 */
 
 #include <DB.h>
 #include <iostream>
 
-/* This function is the main entry point for the program
-*
-* Argument: argc
-* Argument: argv
-* Return: 0 (exit status)
-*
-*/
+// This function is the main entry point for the program
 int main(int argc, char* argv[])
 {
 	DB db;
 
-	/* Test table creation and database creation
-	*
-	*/
+	// Test table creation and database creation
 	DB::Table table;
 	table.add_field("Name", DB::ATTR_CHAR16);
 	table.add_field("Squat", DB::ATTR_INT);
@@ -30,9 +21,7 @@ int main(int argc, char* argv[])
 	table.add_field("Wilks", DB::ATTR_FLOAT);
 	db.create("sample", table);
 	
-	/* Test record creation
-	*
-	*/
+	// Test record creation
 	DB::Record record;
 	record.set_table(table);
 	record.add_char16("Name", "Josh");
@@ -67,17 +56,13 @@ int main(int argc, char* argv[])
 	record4.add_float("Wilks", 235.72);
 	db.insert(record4);
 
-	/* Test record update
-	*
-	*/
+	// Test record update
 	record.set_id(1);
 	record.add_int("Deadlift", 305);
 	record.add_float("Wilks", 235.72);
 	db.update(record);
 
-	/* Test record search before deletion
-	*
-	*/
+	// Test record search before deletion
 	std::vector<DB::Record> records = db.search_float("Wilks", 235.72);
 	std::cout << "Search 1\n";
 	for (int i = 0; i < records.size(); i++)
@@ -90,15 +75,11 @@ int main(int argc, char* argv[])
 		std::cout << "Wilks: " << records[i].get_float("Wilks") << "\n";
 	}
 
-	/* Test record removal
-	*
-	*/
+	// Test record removal
 	db.remove(2);
 	db.remove(3);
 
-	/* Test record search after deletion
-	*
-	*/
+	// Test record search after deletion
 	records = db.search_float("Wilks", 235.72);
 	std::cout << "Search 2\n";
 	for (int i = 0; i < records.size(); i++)
