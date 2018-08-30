@@ -8,6 +8,7 @@ INCLUDE_API=src/api
 API_FILES=src/api/*.cpp
 API_INCLUDE_FILES=src/api/*.h
 SAMPLE_FILE=src/tools/sample.cpp
+TEST_FILE=src/tools/test.cpp
 PERF_FILE=src/tools/perf.cpp
 FILEVIEWER_FILE=src/tools/file_viewer.cpp
 
@@ -16,6 +17,7 @@ BUILD_OBJ=*.o
 BUILD_LIB=DB.a
 TOOLS_DIR=bin
 SAMPLE_BIN=sample
+TEST_BIN=test
 PERF_BIN=perf
 FILEVIEWER_BIN=fileviewer
 
@@ -24,6 +26,7 @@ INSTALL_DIR=/usr/lib
 CC=g++
 FLAGS=-c -I$(INCLUDE_API)
 SAMPLE_FLAGS=$(BUILD_DIR)/$(BUILD_LIB) -I$(BUILD_DIR)
+TEST_FLAGS=$(BUILD_DIR)/$(BUILD_LIB) -I$(BUILD_DIR)
 PERF_FLAGS=$(BUILD_DIR)/$(BUILD_LIB) -I$(BUILD_DIR) -std=c++11
 LIB=ar
 LIB_FLAGS=rvs
@@ -40,6 +43,7 @@ build: $(API_FILES)
 tools: $(SAMPLE_FILE) $(PERF_FILE)
 	mkdir -p $(TOOLS_DIR)
 	$(CC) -o $(TOOLS_DIR)/$(SAMPLE_BIN) $(SAMPLE_FILE) $(SAMPLE_FLAGS)
+	$(CC) -o $(TOOLS_DIR)/$(TEST_BIN) $(TEST_FILE) $(TEST_FLAGS)
 	$(CC) -o $(TOOLS_DIR)/$(PERF_BIN) $(PERF_FILE) $(PERF_FLAGS)
 	$(CC) -o $(TOOLS_DIR)/$(FILEVIEWER_BIN) $(FILEVIEWER_FILE)
 	
