@@ -6,3 +6,4 @@
 # Do not include built files
 bin/
 lib/
+build/

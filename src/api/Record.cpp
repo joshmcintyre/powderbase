@@ -3,7 +3,7 @@
 * Author: Josh McIntyre
 */
 
-#include <DB.h>
+#include "DB.h"
 
 // This function writes record information to disk using a stream object
 void DB::Record::write(std::fstream& stream)

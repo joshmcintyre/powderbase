@@ -4,7 +4,7 @@
 * Author: Josh McIntyre
 */
 
-#include <DB.h>
+#include "DB.h"
 #include <iostream>
 
 /* This function is the main entry point for the program
@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
 	// Test record update
 	record.set_id(1);
-	record.add_int("Grade", 97.50);
+	record.add_float("Grade", 97.50);
 	db.update(record);
 
 	// Test record search before deletion

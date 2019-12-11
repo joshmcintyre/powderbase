@@ -3,7 +3,7 @@
 * Author: Josh McIntyre
 */
 
-#include <DB.h>
+#include "DB.h"
 
 /* This constructor sets information such as the size of the AttrID data
 * All id's will have the name "id"
