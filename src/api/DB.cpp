@@ -3,7 +3,7 @@
 * Author: Josh McIntyre
 */
 
-#include <DB.h>
+#include "DB.h"
 
 // This constructor initializes metadata defaults when the database object is created
 DB::DB()

@@ -4,7 +4,7 @@
 * Author: Josh McIntyre
 */
 
-#include <DB.h>
+#include "DB.h"
 #include <iostream>
 
 // This function is the main entry point for the program

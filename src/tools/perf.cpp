@@ -4,7 +4,7 @@
 * Author: Josh McIntyre
 */
 
-#include <DB.h>
+#include "DB.h"
 #include <iostream>
 #include <sstream>
 #include <chrono>
@@ -28,7 +28,6 @@ int main(int argc, char* argv[])
 				exit(EXIT_FAILURE);
 			}
 			i++;
-			continue;
 		}
 	}
 

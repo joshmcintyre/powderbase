@@ -5,7 +5,7 @@
 * Author: Josh McIntyre
 */
 
-#include <DB.h>
+#include "DB.h"
 
 // This function writes table information to disk using a stream object
 void DB::Table::write(std::fstream& stream)
